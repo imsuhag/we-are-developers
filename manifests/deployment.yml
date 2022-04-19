@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "manjeetaks-d73c"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "manjeetaks-d73c"
+  template:
+    metadata:
+      labels:
+        app: "manjeetaks-d73c"
+    spec:
+      containers:
+        - name: "manjeetaks-d73c"
+          image: "manjeetazacr.azurecr.io/manjeetaks"
+          ports:
+          - containerPort: 80
