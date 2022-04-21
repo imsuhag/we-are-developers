@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "manjeetaks-0f75"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "manjeetaks-0f75"
+  template:
+    metadata:
+      labels:
+        app: "manjeetaks-0f75"
+    spec:
+      containers:
+        - name: "manjeetaks-0f75"
+          image: "manjeetacr.azurecr.io/manjeetaks"
+          ports:
+          - containerPort: 80
