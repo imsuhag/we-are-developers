@@ -1,0 +1,51 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: manjeetacr.azurecr.io
+        username: ${{ secrets.acr_manjeetacr_username }}
+        password: ${{ secrets.acr_manjeetacr_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t manjeetacr.azurecr.io/manjeetaks:${{ github.sha }} --label dockerfile-path=Dockerfile
+        docker push manjeetacr.azurecr.io/manjeetaks:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_manjeetaks_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep team-devs | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace team-devs`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: team-devs
+        container-registry-url: manjeetacr.azurecr.io
+        container-registry-username: ${{ secrets.acr_manjeetacr_username }}
+        container-registry-password: ${{ secrets.acr_manjeetacr_password }}
+        secret-name: manjeetaksdockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: team-devs
+        manifests: |
+          manifests/deployment-1.yml
+          manifests/service-1.yml
+          manifests/ingress.yml
+        images: |
+          manjeetacr.azurecr.io/manjeetaks:${{ github.sha }}
+        imagepullsecrets: |
+          manjeetaksdockerauth
