@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: "manjeetaks-0f75"
+    labels:
+        app: "manjeetaks-0f75"
+    annotations:
+        kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+    rules:
+        - host: team-devs-manjeetaks-0f75.2504408ec3c64cd9ab24.eastus.aksapp.io
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: "manjeetaks-0f75"
+                servicePort: 80
